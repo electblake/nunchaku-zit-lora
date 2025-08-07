@@ -9,8 +9,7 @@ from diffusers import  QwenImagePipeline
 
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
-#black-forest-labs/FLUX.1-Krea-dev
-#black-forest-labs/FLUX.1-dev
+
 
 
 # Load the model pipeline
@@ -98,7 +97,7 @@ with gr.Blocks(css=css) as app:
                 with gr.Row():
                     text_prompt = gr.Textbox(label="Prompt", placeholder="Enter a prompt here", lines=3, elem_id="prompt-text-input")
                 with gr.Row():
-                    custom_lora = gr.Textbox(label="Custom LoRA", info="LoRA Hugging Face path (optional)", placeholder="multimodalart/vintage-ads-flux")
+                    custom_lora = gr.Textbox(label="Custom LoRA", info="LoRA Hugging Face path (optional)", placeholder="flymy-ai/qwen-image-realism-lora")
                 with gr.Row():
                     with gr.Accordion("Advanced Settings", open=False):
                         lora_scale = gr.Slider(
