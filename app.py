@@ -4,8 +4,6 @@ import random
 import spaces
 import torch
 from diffusers import  DiffusionPipeline
-# from transformers import CLIPTextModel, CLIPTokenizer,T5EncoderModel, T5TokenizerFast
-# from live_preview_helpers import calculate_shift, retrieve_timesteps, flux_pipe_call_that_returns_an_iterable_of_images
 
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -29,26 +27,9 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
     generator = torch.Generator().manual_seed(seed)
 
     
-    # for img in pipe.flux_pipe_call_that_returns_an_iterable_of_images(
-    #         prompt=prompt,
-    #         guidance_scale=guidance_scale,
-    #         num_inference_steps=num_inference_steps,
-    #         width=width,
-    #         height=height,
-    #         generator=generator,
-    #         output_type="pil",
-    #         good_vae=good_vae,
-    #     ):
-    #         yield img, seed
-
-    # Handle LoRA loading
-    # Load LoRA weights and prepare joint_attention_kwargs
     if lora_id and lora_id.strip() != "":
         pipe.unload_lora_weights()
         pipe.load_lora_weights(lora_id.strip())
-        # joint_attention_kwargs = {"scale": lora_scale}
-    # else:
-    #     joint_attention_kwargs = None
     
     try:
         image = pipe(
@@ -90,7 +71,7 @@ css = """
 """
 
 with gr.Blocks(css=css) as app:
-    gr.HTML("<center><h1>FLUX.1-Dev with LoRA support</h1></center>")
+    gr.HTML("<center><h1>Qwen Image with LoRA support</h1></center>")
     with gr.Column(elem_id="col-container"):
         with gr.Row():
             with gr.Column():
@@ -105,7 +86,7 @@ with gr.Blocks(css=css) as app:
                             minimum=0,
                             maximum=2,
                             step=0.01,
-                            value=0.95,
+                            value=1,
                         )
                         with gr.Row():
                             width = gr.Slider(label="Width", value=1024, minimum=64, maximum=2048, step=8)
@@ -114,7 +95,7 @@ with gr.Blocks(css=css) as app:
                         randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
                         with gr.Row():
                             steps = gr.Slider(label="Inference steps steps", value=28, minimum=1, maximum=100, step=1)
-                            cfg = gr.Slider(label="Guidance Scale", value=3.5, minimum=1, maximum=20, step=0.5)
+                            cfg = gr.Slider(label="Guidance Scale", value=4, minimum=1, maximum=20, step=0.5)
                         # method = gr.Radio(label="Sampling method", value="DPM++ 2M Karras", choices=["DPM++ 2M Karras", "DPM++ SDE Karras", "Euler", "Euler a", "Heun", "DDIM"])
 
                 with gr.Row():
