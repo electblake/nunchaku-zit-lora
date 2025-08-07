@@ -6,7 +6,8 @@ colorTo: indigo
 sdk: gradio
 sdk_version: 5.41.1
 app_file: app.py
-pinned: false
+pinned: true
+short_description: Qwen Text to Image with LORA support
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
