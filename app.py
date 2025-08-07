@@ -3,7 +3,7 @@ import numpy as np
 import random
 import spaces
 import torch
-from diffusers import  QwenImagePipeline
+from diffusers import  DiffusionPipeline
 # from transformers import CLIPTextModel, CLIPTokenizer,T5EncoderModel, T5TokenizerFast
 # from live_preview_helpers import calculate_shift, retrieve_timesteps, flux_pipe_call_that_returns_an_iterable_of_images
 
@@ -13,7 +13,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # Load the model pipeline
-pipe = QwenImagePipeline.from_pretrained("Qwen/Qwen-Image", torch_dtype=dtype).to(device)
+pipe = DiffusionPipeline.from_pretrained("Qwen/Qwen-Image", torch_dtype=dtype).to(device)
 
 torch.cuda.empty_cache()
 
