@@ -78,7 +78,7 @@ with gr.Blocks(css=css) as app:
                 with gr.Row():
                     text_prompt = gr.Textbox(label="Prompt", placeholder="Enter a prompt here", lines=3, elem_id="prompt-text-input")
                 with gr.Row():
-                    custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="LoRA Hugging Face path (optional)", placeholder="flymy-ai/qwen-image-realism-lora")
+                    custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="LoRA Hugging Face path", placeholder="flymy-ai/qwen-image-realism-lora")
                 with gr.Row():
                     with gr.Accordion("Advanced Settings", open=False):
                         lora_scale = gr.Slider(
@@ -89,8 +89,8 @@ with gr.Blocks(css=css) as app:
                             value=1,
                         )
                         with gr.Row():
-                            width = gr.Slider(label="Width", value=1024, minimum=64, maximum=2048, step=8)
-                            height = gr.Slider(label="Height", value=1024, minimum=64, maximum=2048, step=8)
+                            width = gr.Slider(label="Width", value=1024, minimum=64, maximum=2048, step=16)
+                            height = gr.Slider(label="Height", value=1024, minimum=64, maximum=2048, step=16)
                         seed = gr.Slider(label="Seed", value=-1, minimum=-1, maximum=4294967296, step=1)
                         randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
                         with gr.Row():
