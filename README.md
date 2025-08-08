@@ -1,5 +1,5 @@
 ---
-title: Qwen Image LORA
+title: Qwen Image + LORA
 emoji: 💻
 colorFrom: indigo
 colorTo: indigo
