@@ -35,6 +35,7 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
 
     apply_cache_on_pipe(
        pipe,
+       # residual_diff_threshold=0.2,
    )
     
     try:
