@@ -5,6 +5,8 @@ import spaces
 import torch
 from diffusers import  QwenImagePipeline
 
+from para_attn.first_block_cache.diffusers_adapters import apply_cache_on_pipe
+
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -30,6 +32,10 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
     if lora_id and lora_id.strip() != "":
         pipe.unload_lora_weights()
         pipe.load_lora_weights(lora_id.strip())
+
+    apply_cache_on_pipe(
+       pipe,
+   )
     
     try:
         image = pipe(
