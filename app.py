@@ -75,11 +75,8 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
 
     
     if lora_id and lora_id.strip() != "":
-        try:
-            pipe.unload_lora_weights()
-            load_lora_auto(pipe, lora_id)
-        except Exception as e:
-            return f"Error loading LoRA: {e}", seed
+        pipe.unload_lora_weights()
+        load_lora_auto(pipe, lora_id)
 
 
     try:
