@@ -5,7 +5,6 @@ import spaces
 import torch
 from diffusers import  QwenImagePipeline
 
-
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -21,8 +20,6 @@ MAX_IMAGE_SIZE = 2048
 
 # pipe.flux_pipe_call_that_returns_an_iterable_of_images = flux_pipe_call_that_returns_an_iterable_of_images.__get__(pipe)
 
-
-
 @spaces.GPU()
 def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidance_scale=4, num_inference_steps=28, lora_id=None, lora_scale=0.95, progress=gr.Progress(track_tqdm=True)):
     if randomize_seed:
@@ -32,7 +29,7 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
     
     if lora_id and lora_id.strip() != "":
         pipe.unload_lora_weights()
-        pipe.load_lora_weights(lora_id)
+        pipe.load_lora_weights(lora_id.strip())
 
 
     try:
