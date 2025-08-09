@@ -3,7 +3,7 @@ import numpy as np
 import random
 import spaces
 import torch
-from diffusers import  DiffusionPipeline
+from diffusers import  QwenImagePipeline
 
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -11,7 +11,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # Load the model pipeline
-pipe = DiffusionPipeline.from_pretrained("Qwen/Qwen-Image", torch_dtype=dtype).to(device)
+pipe = QwenImagePipeline.from_pretrained("Qwen/Qwen-Image", torch_dtype=dtype).to(device)
 
 torch.cuda.empty_cache()
 
