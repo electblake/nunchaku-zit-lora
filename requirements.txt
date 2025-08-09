@@ -1,7 +1,6 @@
 git+https://github.com/huggingface/accelerate.git
 git+https://github.com/huggingface/diffusers.git
 torch
-para-attn
 git+https://github.com/huggingface/transformers.git
 xformers
 sentencepiece
