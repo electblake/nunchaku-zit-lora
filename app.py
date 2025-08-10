@@ -5,6 +5,12 @@ import spaces
 import torch
 from diffusers import  QwenImagePipeline
 
+import os
+import requests
+import tempfile
+import shutil
+from urllib.parse import urlparse
+
 dtype = torch.bfloat16
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -19,6 +25,46 @@ MAX_IMAGE_SIZE = 2048
 
 # pipe.flux_pipe_call_that_returns_an_iterable_of_images = flux_pipe_call_that_returns_an_iterable_of_images.__get__(pipe)
 
+
+def load_lora_auto(pipe, lora_input):
+    lora_input = lora_input.strip()
+    if not lora_input:
+        return
+
+    # If it's just an ID like "author/model"
+    if "/" in lora_input and not lora_input.startswith("http"):
+        pipe.load_lora_weights(lora_input)
+        return
+
+    if lora_input.startswith("http"):
+        url = lora_input
+
+        # Repo page (no blob/resolve)
+        if "huggingface.co" in url and "/blob/" not in url and "/resolve/" not in url:
+            repo_id = urlparse(url).path.strip("/")
+            pipe.load_lora_weights(repo_id)
+            return
+
+        # Blob link → convert to resolve link
+        if "/blob/" in url:
+            url = url.replace("/blob/", "/resolve/")
+
+        # Download direct file
+        tmp_dir = tempfile.mkdtemp()
+        local_path = os.path.join(tmp_dir, os.path.basename(urlparse(url).path))
+
+        try:
+            print(f"Downloading LoRA from {url}...")
+            resp = requests.get(url, stream=True)
+            resp.raise_for_status()
+            with open(local_path, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print(f"Saved LoRA to {local_path}")
+            pipe.load_lora_weights(local_path)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+
 @spaces.GPU()
 def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidance_scale=4, num_inference_steps=28, lora_id=None, lora_scale=0.95, progress=gr.Progress(track_tqdm=True)):
     if randomize_seed:
@@ -28,7 +74,7 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
     
     if lora_id and lora_id.strip() != "":
         pipe.unload_lora_weights()
-        pipe.load_lora_weights(lora_id.strip())
+        load_lora_auto(pipe, lora_id)
     
     try:
         image = pipe(
@@ -41,6 +87,7 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
         true_cfg_scale=guidance_scale,
         guidance_scale=1.0  # Use a fixed default for distilled guidance
     ).images[0]
+        print("Image Generation Completed for: ", prompt, lora_id)
         return image, seed
     finally:
         # Unload LoRA weights if they were loaded
