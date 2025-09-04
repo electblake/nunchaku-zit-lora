@@ -25,6 +25,7 @@ MAX_IMAGE_SIZE = 2048
 
 # pipe.flux_pipe_call_that_returns_an_iterable_of_images = flux_pipe_call_that_returns_an_iterable_of_images.__get__(pipe)
 
+# flymy-ai/qwen-image-realism-lora
 
 def load_lora_auto(pipe, lora_input):
     lora_input = lora_input.strip()
@@ -124,7 +125,7 @@ with gr.Blocks(css=css) as app:
                 with gr.Row():
                     text_prompt = gr.Textbox(label="Prompt", placeholder="Enter a prompt here", lines=3, elem_id="prompt-text-input")
                 with gr.Row():
-                    custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="URL or the path to the LoRA weights", placeholder="flymy-ai/qwen-image-realism-lora")
+                    custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="URL or the path to the LoRA weights", placeholder="kudzueye/boreal-qwen-image")
                 with gr.Row():
                     with gr.Accordion("Advanced Settings", open=False):
                         lora_scale = gr.Slider(
