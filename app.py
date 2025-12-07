@@ -16,7 +16,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # Load the model pipeline
-pipe = DiffusionPipeline.from_pretrained("meituan-longcat/LongCat-Image", torch_dtype=dtype).to(device)
+pipe = DiffusionPipeline.from_pretrained("meituan-longcat/LongCat-Image", trust_remote_code=True, torch_dtype=dtype).to(device)
 
 torch.cuda.empty_cache()
 
