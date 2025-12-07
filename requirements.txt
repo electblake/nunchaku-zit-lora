@@ -1,8 +1,8 @@
-git+https://github.com/huggingface/accelerate.git
-git+https://github.com/huggingface/diffusers.git
+accelerate
+diffusers==0.34.0
 torch
 para-attn
-git+https://github.com/huggingface/transformers.git
+transformers==4.48.3
 xformers
 sentencepiece
-git+https://github.com/huggingface/peft.git
+peft==0.17.1
