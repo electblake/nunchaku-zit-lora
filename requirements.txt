@@ -1,6 +1,6 @@
 accelerate
 git+https://github.com/huggingface/diffusers
-transformers==4.48.3
+transformers==4.57.3
 torch
 para-attn
 xformers
