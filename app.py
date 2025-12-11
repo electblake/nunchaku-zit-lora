@@ -117,7 +117,7 @@ css = """
 """
 
 with gr.Blocks(css=css) as app:
-    gr.HTML("<center><h1>Qwen Image with LoRA support</h1></center>")
+    gr.HTML("<center><h1>Z-Image with LoRA support</h1></center>")
     with gr.Column(elem_id="col-container"):
         with gr.Row():
             with gr.Column():
