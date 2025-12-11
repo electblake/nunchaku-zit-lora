@@ -3,7 +3,7 @@ import numpy as np
 import random
 import spaces
 import torch
-from diffusers import DiffusionPipeline
+from diffusers import ZImagePipeline
 
 import os
 import requests
@@ -16,7 +16,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 # Load the model pipeline
-pipe = DiffusionPipeline.from_pretrained("meituan-longcat/LongCat-Image", trust_remote_code=True, torch_dtype=dtype).to(device)
+pipe = ZImagePipeline.from_pretrained("Tongyi-MAI/Z-Image-Turbo", torch_dtype=dtype, low_cpu_mem_usage=False).to(device)
 
 torch.cuda.empty_cache()
 
@@ -85,8 +85,7 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
         height=height,
         num_inference_steps=num_inference_steps,
         generator=generator,
-        true_cfg_scale=guidance_scale,
-        guidance_scale=1.0  # Use a fixed default for distilled guidance
+        guidance_scale=guidance_scale  # Use a fixed default for distilled guidance
     ).images[0]
         print("Image Generation Completed for: ", prompt, lora_id)
         return image, seed
@@ -141,8 +140,8 @@ with gr.Blocks(css=css) as app:
                         seed = gr.Slider(label="Seed", value=-1, minimum=-1, maximum=4294967296, step=1)
                         randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
                         with gr.Row():
-                            steps = gr.Slider(label="Inference steps steps", value=28, minimum=1, maximum=100, step=1)
-                            cfg = gr.Slider(label="Guidance Scale", value=4.5, minimum=1, maximum=20, step=0.5)
+                            steps = gr.Slider(label="Inference steps steps", value=9, minimum=1, maximum=20, step=1)
+                            cfg = gr.Slider(label="Guidance Scale", value=0, minimum=0, maximum=20, step=0.5)
                         # method = gr.Radio(label="Sampling method", value="DPM++ 2M Karras", choices=["DPM++ 2M Karras", "DPM++ SDE Karras", "Euler", "Euler a", "Heun", "DDIM"])
 
                 with gr.Row():
