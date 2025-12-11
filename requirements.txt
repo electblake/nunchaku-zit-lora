@@ -1,3 +1,4 @@
+huggingface_hub<0.26.0
 accelerate
 git+https://github.com/huggingface/diffusers
 git+https://github.com/huggingface/transformers
