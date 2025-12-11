@@ -124,7 +124,7 @@ with gr.Blocks(css=css) as app:
                 with gr.Row():
                     text_prompt = gr.Textbox(label="Prompt", placeholder="Enter a prompt here", lines=3, elem_id="prompt-text-input")
                 with gr.Row():
-                    custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="URL or the path to the LoRA weights", placeholder="kudzueye/boreal-qwen-image")
+                    custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="URL or the path to the LoRA weights", placeholder="ostris/z_image_turbo_childrens_drawings")
                 with gr.Row():
                     with gr.Accordion("Advanced Settings", open=False):
                         lora_scale = gr.Slider(
