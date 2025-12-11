@@ -1,8 +1,8 @@
 accelerate
-diffusers==0.35.1
+git+https://github.com/huggingface/diffusers
+git+https://github.com/huggingface/transformers
 torch
 para-attn
-transformers==4.48.3
 xformers
 sentencepiece
 peft==0.17.1
