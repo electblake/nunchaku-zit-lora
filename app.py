@@ -100,6 +100,7 @@ lora_examples = [
     ["tarn59/pixel_art_style_lora_z_image_turbo"],
     ["renderartist/Saturday-Morning-Z-Image-Turbo"],
     ["renderartist/Coloring-Book-Z-Image-Turbo-LoRA"],
+    ["https://huggingface.co/tarn59/80s_air_brush_style_z_image_turbo/resolve/main/80s_air_brush_style_v2_z_image_turbo.safetensors"]
 ]
     
 examples = [
