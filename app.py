@@ -185,4 +185,4 @@ with gr.Blocks(css=css) as app:
         # text_button.click(query, inputs=[custom_lora, text_prompt, steps, cfg, randomize_seed, seed, width, height], outputs=[image_output,seed_output, seed])
         # text_button.click(infer, inputs=[text_prompt, seed, randomize_seed, width, height, cfg, steps, custom_lora, lora_scale], outputs=[image_output,seed_output, seed])
 
-app.launch(share=True)
+app.launch(mcp_server=True, share=True)
