@@ -93,6 +93,14 @@ def infer(prompt, seed=42, randomize_seed=False, width=1024, height=1024, guidan
         # Unload LoRA weights if they were loaded
         if lora_id:
             pipe.unload_lora_weights()
+
+
+lora_examples = [
+    ["ostris/z_image_turbo_childrens_drawings"],
+    ["tarn59/pixel_art_style_lora_z_image_turbo"],
+    ["renderartist/Saturday-Morning-Z-Image-Turbo"],
+    ["renderartist/Coloring-Book-Z-Image-Turbo-LoRA"],
+]
     
 examples = [
     "a tiny astronaut hatching from an egg on the moon",
@@ -125,6 +133,17 @@ with gr.Blocks(css=css) as app:
                     text_prompt = gr.Textbox(label="Prompt", placeholder="Enter a prompt here", lines=3, elem_id="prompt-text-input")
                 with gr.Row():
                     custom_lora = gr.Textbox(label="Custom LoRA (optional)", info="URL or the path to the LoRA weights", placeholder="ostris/z_image_turbo_childrens_drawings")
+                gr.Examples(
+                    examples=lora_examples,
+                    inputs=[custom_lora],
+                    label="or Select a LoRA Model",
+                )
+                
+
+                with gr.Row():
+                    # text_button = gr.Button("Run", variant='primary', elem_id="gen-button")
+                    text_button = gr.Button("✨ Generate Image", variant='primary', elem_classes=["generate-btn"])
+
                 with gr.Row():
                     with gr.Accordion("Advanced Settings", open=False):
                         lora_scale = gr.Slider(
@@ -143,10 +162,6 @@ with gr.Blocks(css=css) as app:
                             steps = gr.Slider(label="Inference steps steps", value=9, minimum=1, maximum=20, step=1)
                             cfg = gr.Slider(label="Guidance Scale", value=0, minimum=0, maximum=20, step=0.5)
                         # method = gr.Radio(label="Sampling method", value="DPM++ 2M Karras", choices=["DPM++ 2M Karras", "DPM++ SDE Karras", "Euler", "Euler a", "Heun", "DDIM"])
-
-                with gr.Row():
-                    # text_button = gr.Button("Run", variant='primary', elem_id="gen-button")
-                    text_button = gr.Button("✨ Generate Image", variant='primary', elem_classes=["generate-btn"])
             with gr.Column():
                 with gr.Row():
                     image_output = gr.Image(type="pil", label="Image Output", elem_id="gallery")
