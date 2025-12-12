@@ -165,7 +165,7 @@ with gr.Blocks(css=css) as app:
                 gr.Examples(
                     examples=lora_examples,
                     inputs=[custom_lora],
-                    label="or Select a LoRA Model",
+                    label="Select a LoRA Model",
                 )
         
         # gr.Markdown(article_text)
