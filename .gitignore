@@ -1,0 +1,8 @@
+.venv
+*.pem
+inputs
+outputs
+loras
+models
+.claude/settings.local.json
+.gradio/*.pem

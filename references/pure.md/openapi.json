@@ -1,0 +1,453 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "pure.md api",
+    "x-logo": {
+      "href": "https://pure.md",
+      "url": "https://pure.md/assets/logo.png",
+      "altText": "pure.md logo"
+    },
+    "description": "## Introduction\n\n[pure.md](https://pure.md) is a REST API that lets AI agents and developers reliably access web content.\nWith pure.md, you can:\n\n- Avoid bot detection by mimicking real user behavior\n- Render JavaScript-heavy websites, PDFs, images, and files\n- Scrape web pages into markdown optimized for an LLM\n- Crawl search engines for up-to-date knowledge\n- Extract JSON from web pages using natural language\n\n## Authentication\n\nGenerate a unique API token in your [dashboard](/dashboard).\nThen include that token in the `x-puremd-api-token` request header for all requests.\n\n## Rate limits\n\nRate limits vary by subscription plan. See [pricing](https://pure.md/#pricing) for details.\n\n| Subscription type | Requests per minute |\n| --- | --- |\n| Logged out / anonymous | 6 |\n| Logged in, no subscription | 10 |\n| Starter plan | 60 |\n| Growth plan | 600 |\n| Business plan | 3000 |\n\n## MCP server\n\nThe [Model Context Protocol](https://modelcontextprotocol.io/introduction), developed by Anthropic, is an open standard that enables AI systems to seamlessly interact with an ecosystem of tooling.\nWith it, MCP clients like Cursor, Windsurf, and Claude Desktop can learn how to use a variety of APIs and other functionality.\n\nYou can instruct your MCP clients to route traffic through pure.md by following the instructions at https://github.com/puremd/puremd-mcp.\n\n## Headers pass through\n\nAll request headers pass through to the target URL, except ones that begin with `x-puremd-`.\n\nOriginal headers from the origin are returned in the response.\n\n---\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Support",
+      "email": "puremd@crawlspace.dev"
+    },
+    "termsOfService": "https://pure.md/terms"
+  },
+  "servers": [
+    {
+      "url": "https://pure.md/",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "APIToken": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "APIToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-puremd-api-token"
+      }
+    }
+  },
+  "paths": {
+    "/:url": {
+      "get": {
+        "summary": "Fetch web content",
+        "description": "Retrieves the content of a given URL in markdown format.\nUse this endpoint to scrape text content from a web page without getting blocked.\n",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "path",
+            "required": true,
+            "description": "The URL",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "example": "<WebPage url=\"https://example.com\">\n\ntitle: Example Domain\naccess_date: Wed, 05 Mar 2025 22:27:19 GMT\n\n---\n\n# Example Domain\n\nThis domain is for use in illustrative examples in documents. You may use this domain in literature without prior coordination or asking for permission.\n\nMore information...\n\n</WebPage>\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "example": "Malformed URL\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported media type",
+            "content": {
+              "text/plain": {
+                "example": "HTML responses only\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "text/plain": {
+                "example": "Rate limit exceeded\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Fetch and extract data",
+        "description": "**This endpoint is only available on paid plans.**\n\nRuns inference on the content of a given URL.\nUse this endpoint to extract structured JSON from a webpage.\n",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "path",
+            "required": true,
+            "description": "The URL",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "The user message"
+                  },
+                  "model": {
+                    "type": "string",
+                    "enum": [
+                      "meta/llama-3.1-8b",
+                      "meta/llama-3.3-70b",
+                      "mistral/hermes-2-pro-7b",
+                      "deepseek/r1-distill-qwen-32b"
+                    ],
+                    "description": "The generative AI model to use. Smaller models are faster, while larger models are more accurate. Default model: `meta/llama-3.1-8b`\n"
+                  },
+                  "schema": {
+                    "type": "object",
+                    "description": "JSON schema of the desired response. Omit this property to get a response in plaintext."
+                  }
+                },
+                "required": [
+                  "prompt"
+                ]
+              },
+              "example": {
+                "prompt": "What are the top 5 headlines from today?",
+                "model": "meta/llama-3.1-8b",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "headlines": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "headlines"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "object",
+                  "properties": {
+                    "headlines": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "headlines"
+                  ]
+                }
+              },
+              "text/plain": {
+                "example": "# Title of the Page\n\n## Introduction\nThis is the introduction text from the webpage, purified and optimized for LLM processing.\n\n## Main Content\nThe main content of the page converted to clean markdown format, with unnecessary elements removed.\n\n### Subsection\nContent organized in logical subsections with proper hierarchy.\n\n## Conclusion\nThe concluding information from the webpage.\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "example": "Malformed URL",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "example": "Unauthorized",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required",
+            "content": {
+              "text/plain": {
+                "example": "Payment required",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported media type",
+            "content": {
+              "text/plain": {
+                "example": "HTML responses only",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "text/plain": {
+                "example": "Rate limit exceeded",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search?q=": {
+      "get": {
+        "summary": "Search the web",
+        "description": "**This endpoint is only available on paid plans.**\n\nCrawls the top results from a search engine query and concatenates the web content from all pages into markdown.\nUse this endpoint to gather knowledge of news, current events, or specific topics.\n",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "The URL-encoded search query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "example": "# Title of the Page\n\n## Introduction\nThis is the introduction text from the webpage, purified and optimized for LLM processing.\n\n## Main Content\nThe main content of the page converted to clean markdown format, with unnecessary elements removed.\n\n### Subsection\nContent organized in logical subsections with proper hierarchy.\n\n## Conclusion\nThe concluding information from the webpage.\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "example": "Malformed URL",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "example": "Unauthorized",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required",
+            "content": {
+              "text/plain": {
+                "example": "Payment required",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "text/plain": {
+                "example": "Rate limit exceeded",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Search and extract data",
+        "description": "**This endpoint is only available on paid plans.**\n\nCrawls the top results from a search engine query and runs inference on their web content.\nUse this endpoint to answer questions about news, current events, or general user queries that require searching.\n",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "path",
+            "required": true,
+            "description": "The URL",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "The user message"
+                  },
+                  "model": {
+                    "type": "string",
+                    "enum": [
+                      "meta/llama-3.1-8b",
+                      "meta/llama-3.3-70b",
+                      "mistral/hermes-2-pro-7b",
+                      "deepseek/r1-distill-qwen-32b"
+                    ],
+                    "description": "The generative AI model to use. Smaller models are faster, while larger models are more accurate. Default model: `meta/llama-3.1-8b`\n"
+                  },
+                  "schema": {
+                    "type": "object",
+                    "description": "JSON schema of the desired response. Omit this property to get a response in plaintext."
+                  }
+                },
+                "required": [
+                  "prompt"
+                ]
+              },
+              "example": {
+                "prompt": "Who won the baseball game last night?",
+                "model": "meta/llama-3.1-8b",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "headlines": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "headlines"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "example": "# Title of the Page\n\n## Introduction\nThis is the introduction text from the webpage, purified and optimized for LLM processing.\n\n## Main Content\nThe main content of the page converted to clean markdown format, with unnecessary elements removed.\n\n### Subsection\nContent organized in logical subsections with proper hierarchy.\n\n## Conclusion\nThe concluding information from the webpage.\n",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "example": "Malformed URL",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "example": "Unauthorized",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required",
+            "content": {
+              "text/plain": {
+                "example": "Payment required",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "text/plain": {
+                "example": "Rate limit exceeded",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
