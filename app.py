@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 
 import gradio as gr
 import requests
-import torch
+
 from diffusers.pipelines.z_image.pipeline_z_image import ZImagePipeline
 from nunchaku import NunchakuZImageTransformer2DModel
 from nunchaku.utils import get_precision, is_turing
@@ -28,12 +28,14 @@ SlotSpec = tuple[str, str]
 SlotSpecs = tuple[SlotSpec, ...]
 TOutput = TypeVar("TOutput", bound=tuple[object, ...])
 
-# hf spaces
-import spaces
+# LOAD TORCH
+import torch
+print(f"Is CUDA available: {torch.cuda.is_available()}")
+print(f"CUDA device: {torch.cuda.get_device_name(torch.cuda.current_device())}")
 zero = torch.Tensor([0]).cuda()
-
 print(f"Checking for huggingface zero gpu")
 print(zero.device)
+
 
 # NODE BASE CLASSES
 
@@ -313,7 +315,6 @@ def load_example(example_choice: str) -> str:
     idx = int(example_choice.split(" ")[1]) - 1
     return EXAMPLE_PROMPTS[idx]
 
-@spaces.GPU
 def generate_image(
     node_name: str,
     prompt: str,
@@ -368,7 +369,7 @@ def generate_image(
 
     return image, f"Seed: {final_seed}\nSaved: {filename}"
 
-
+# @spaces.GPU
 with gr.Blocks() as demo:
     gr.Markdown("# Coloring Book Generator")
     gr.Markdown("Test the generator nodes with different LoRAs")
