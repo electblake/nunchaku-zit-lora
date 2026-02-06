@@ -1,6 +1,5 @@
 """
-Consolidated Gradio app for Z-Image-Turbo LoRA nodes.
-This replaces graph_primitives.py and test_nodes.py.
+Consolidated Gradio app for Z-Image-Turbo + LoRA inference using a node slot paradigm design paradigm
 """
 from __future__ import annotations
 
@@ -29,6 +28,7 @@ SlotSpec = tuple[str, str]
 SlotSpecs = tuple[SlotSpec, ...]
 TOutput = TypeVar("TOutput", bound=tuple[object, ...])
 
+# NODE BASE CLASSES
 
 class Slot:
     """
@@ -87,62 +87,7 @@ class Node(Generic[TOutput]):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(in={len(self.input_slots)}, out={len(self.output_slots)})"
 
-
-def _normalize_lora_url(url: str) -> str:
-    if "/blob/" in url:
-        return url.replace("/blob/", "/resolve/")
-    return url
-
-
-def _download_file(url: str, dst_path: str) -> None:
-    print(f"Downloading LoRA from {url}...")
-    resp = requests.get(url, stream=True, timeout=120)
-    resp.raise_for_status()
-    with open(dst_path, "wb") as handle:
-        for chunk in resp.iter_content(chunk_size=8192):
-            handle.write(chunk)
-    print(f"Saved LoRA to {dst_path}")
-
-
-def _ensure_lora_cached(lora_url: str, cache_dir: str) -> str:
-    url = _normalize_lora_url(lora_url)
-    os.makedirs(cache_dir, exist_ok=True)
-    filename = os.path.basename(urlparse(url).path)
-    if not filename:
-        raise ValueError(f"Could not derive filename from LoRA URL: {lora_url}")
-    local_path = os.path.join(cache_dir, filename)
-    if not os.path.exists(local_path):
-        _download_file(url, local_path)
-    else:
-        print(f"Using cached LoRA: {local_path}")
-    return local_path
-
-
-def _load_lora_adapter(pipe: ZImagePipeline, lora_url: str, adapter_name: str) -> str:
-    local_path = _ensure_lora_cached(lora_url, CACHE_DIR)
-    if getattr(pipe, "_loaded_lora_path", None) == local_path:
-        print("LoRA already loaded, skipping")
-        return local_path
-
-    print(f"Loading LoRA into {type(pipe.transformer).__name__}")
-    pipe.transformer.load_lora_adapter(local_path, adapter_name=adapter_name)
-    pipe.transformer.enable_lora()
-    pipe._loaded_lora_path = local_path
-    pipe._loaded_lora_adapter = adapter_name
-    print(f"✓ LoRA adapter '{adapter_name}' loaded and enabled")
-    return local_path
-
-
-def _extract_image(result: object) -> Image.Image:
-    images = getattr(result, "images", None)
-    if images is None:
-        images = result[0] if isinstance(result, tuple) else result
-    if isinstance(images, (list, tuple)):
-        image = images[0]
-    else:
-        image = images
-    return cast(Image.Image, image)
-
+# INFERENCE NODES FOR GENERATION
 
 class LoRAGeneratorNode(Node[tuple[Image.Image, int]]):
     """
@@ -197,6 +142,46 @@ class LoRAGeneratorNode(Node[tuple[Image.Image, int]]):
         if randomize_seed:
             seed = random.randint(0, MAX_SEED)
         generator = torch.Generator().manual_seed(seed)
+        
+        def _load_lora_adapter(pipe: ZImagePipeline, lora_url: str, adapter_name: str) -> str:
+            def _normalize_lora_url(url: str) -> str:
+                if "/blob/" in url:
+                    return url.replace("/blob/", "/resolve/")
+                return url
+            def _ensure_lora_cached(lora_url: str, cache_dir: str) -> str:
+                url = _normalize_lora_url(lora_url)
+                os.makedirs(cache_dir, exist_ok=True)
+                filename = os.path.basename(urlparse(url).path)
+                if not filename:
+                    raise ValueError(f"Could not derive filename from LoRA URL: {lora_url}")
+                local_path = os.path.join(cache_dir, filename)
+                if not os.path.exists(local_path):
+                    _download_file(url, local_path)
+                else:
+                    print(f"Using cached LoRA: {local_path}")
+                return local_path
+            
+            def _download_file(url: str, dst_path: str) -> None:
+                print(f"Downloading LoRA from {url}...")
+                resp = requests.get(url, stream=True, timeout=120)
+                resp.raise_for_status()
+                with open(dst_path, "wb") as handle:
+                    for chunk in resp.iter_content(chunk_size=8192):
+                        handle.write(chunk)
+                print(f"Saved LoRA to {dst_path}")
+
+            local_path = _ensure_lora_cached(lora_url, CACHE_DIR)
+            if getattr(pipe, "_loaded_lora_path", None) == local_path:
+                print("LoRA already loaded, skipping")
+                return local_path
+
+            print(f"Loading LoRA into {type(pipe.transformer).__name__}")
+            pipe.transformer.load_lora_adapter(local_path, adapter_name=adapter_name)
+            pipe.transformer.enable_lora()
+            pipe._loaded_lora_path = local_path
+            pipe._loaded_lora_adapter = adapter_name
+            print(f"✓ LoRA adapter '{adapter_name}' loaded and enabled")
+            return local_path
 
         if self.lora_url:
             _load_lora_adapter(self.pipe, self.lora_url, self.adapter_name)
@@ -211,6 +196,15 @@ class LoRAGeneratorNode(Node[tuple[Image.Image, int]]):
             generator=generator,
             guidance_scale=guidance_scale,
         )
+        def _extract_image(result: object) -> Image.Image:
+            images = getattr(result, "images", None)
+            if images is None:
+                images = result[0] if isinstance(result, tuple) else result
+            if isinstance(images, (list, tuple)):
+                image = images[0]
+            else:
+                image = images
+            return cast(Image.Image, image)
         image = _extract_image(exectn)
         print(f"{self.name} Image Generated: {prompt}")
         return (image, seed)
@@ -244,6 +238,8 @@ pipe = ZImagePipeline.from_pretrained(
 print(f"✓ Pipeline loaded on {device}")
 print(f"✓ Transformer type: {type(pipe.transformer).__name__}")
 print("Nunchaku 4-bit model loaded!")
+
+# CONFIGURATION
 
 class LoRASpec(TypedDict):
     name: str
@@ -302,6 +298,7 @@ EXAMPLE_PROMPTS = [
     "octopus in fornt of coral 3/4 angle, classic style, white background coloring page, contrast black and white, thin thickness lines playful design",
 ]
 
+# GRADIO COMPONENTS AND HANDLERS
 
 def load_example(example_choice: str) -> str:
     if example_choice == "Custom":
