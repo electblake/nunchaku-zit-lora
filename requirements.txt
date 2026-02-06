@@ -8,6 +8,6 @@ peft==0.17.1
 
 # gradio==5.49.1
 
-torch==2.10.0
+torch==2.9.1
 # https://github.com/nunchaku-ai/nunchaku/releases/download/v1.2.1/nunchaku-1.2.1+cu12.8torch2.10-cp310-cp310-win_amd64.whl
-https://github.com/nunchaku-ai/nunchaku/releases/download/v1.2.1/nunchaku-1.2.1+cu12.8torch2.10-cp310-cp310-linux_x86_64.whl
+https://github.com/nunchaku-ai/nunchaku/releases/download/v1.2.0/nunchaku-1.2.0+torch2.9-cp310-cp310-linux_x86_64.whl
