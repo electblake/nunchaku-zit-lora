@@ -28,6 +28,13 @@ SlotSpec = tuple[str, str]
 SlotSpecs = tuple[SlotSpec, ...]
 TOutput = TypeVar("TOutput", bound=tuple[object, ...])
 
+# hf spaces
+import spaces
+zero = torch.Tensor([0]).cuda()
+
+print(f"Checking for huggingface zero gpu")
+print(zero.device)
+
 # NODE BASE CLASSES
 
 class Slot:
@@ -306,7 +313,7 @@ def load_example(example_choice: str) -> str:
     idx = int(example_choice.split(" ")[1]) - 1
     return EXAMPLE_PROMPTS[idx]
 
-
+@spaces.GPU
 def generate_image(
     node_name: str,
     prompt: str,
