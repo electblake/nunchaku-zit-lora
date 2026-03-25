@@ -1,5 +1,5 @@
 ---
-title: Z-Image Turbo + LORA
+title: Nunchaku Z-Image Turbo (ZIT) + LoRA
 emoji: 💻
 colorFrom: indigo
 colorTo: indigo
