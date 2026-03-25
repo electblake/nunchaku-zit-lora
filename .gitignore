@@ -6,3 +6,5 @@ loras
 models
 .claude/settings.local.json
 .gradio/*.pem
+*.pyc
+__pycache__
