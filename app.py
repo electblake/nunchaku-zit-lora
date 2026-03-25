@@ -263,16 +263,18 @@ LORA_SPECS: list[LoRASpec] = [
         "url": "https://huggingface.co/renderartist/Coloring-Book-Z-Image-Turbo-LoRA/resolve/main/Coloring_Book_Z_Image_Turbo_v1_renderartist_2000.safetensors",
         "adapter": "renderartist",
     },
-    {
-        "name": "Playtime AI",
-        "url": "PLACEHOLDER_URL_FOR_CIVITAI_MODEL_2184429",
-        "adapter": "playtime_ai",
-    },
-    {
-        "name": "Foo Samaritan",
-        "url": "PLACEHOLDER_URL_FOR_CIVITAI_MODEL_2249185",
-        "adapter": "foo_samaritan",
-    },
+    # LEAVE HERE FOR REFERENCE
+    # {
+        # "name": "Playtime AI",
+        # "url": "PLACEHOLDER_URL_FOR_CIVITAI_MODEL_2184429",
+        # "adapter": "playtime_ai",
+    # },
+    # {
+            # "name": "Foo Samaritan",
+        # "url": "PLACEHOLDER_URL_FOR_CIVITAI_MODEL_2249185",
+        # "adapter": "foo_samaritan",
+    # },
+    # LEAVE HERE FOR REFERENCE
 ]
 
 NODES: dict[str, LoRAGeneratorNode] = {
@@ -374,14 +376,20 @@ def generate_image(
 
 with gr.Blocks() as demo:
     gr.Markdown("# Coloring Book Generator")
-    gr.Markdown("Test the generator nodes with different LoRAs")
+    gr.Markdown("Generate coloring book images with the Renderartist LoRA.")
 
     with gr.Row():
         with gr.Column():
-            node_selector = gr.Dropdown(
-                choices=list(NODES.keys()),
+            base_model_display = gr.Textbox(
+                value=BASE_MODEL_ID,
+                label="Selected Base Model",
+                interactive=False,
+            )
+
+            node_selector = gr.Textbox(
                 value="Renderartist",
-                label="Select Generator Node",
+                label="Selected Model Adapter (LoRA)",
+                interactive=False,
             )
 
             example_selector = gr.Dropdown(
