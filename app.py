@@ -7,6 +7,7 @@ import json
 import os
 import random
 import time
+import spaces
 from datetime import datetime
 from typing import ClassVar, Generic, TypeVar, TypedDict, cast
 from urllib.parse import urlparse
@@ -315,6 +316,7 @@ def load_example(example_choice: str) -> str:
     idx = int(example_choice.split(" ")[1]) - 1
     return EXAMPLE_PROMPTS[idx]
 
+@spaces.GPU
 def generate_image(
     node_name: str,
     prompt: str,
@@ -369,7 +371,7 @@ def generate_image(
 
     return image, f"Seed: {final_seed}\nSaved: {filename}"
 
-# @spaces.GPU
+
 with gr.Blocks() as demo:
     gr.Markdown("# Coloring Book Generator")
     gr.Markdown("Test the generator nodes with different LoRAs")
@@ -446,7 +448,7 @@ with gr.Blocks() as demo:
         with gr.Column():
             image_output = gr.Image(label="Generated Image")
             seed_output = gr.Textbox(label="Used Seed", interactive=False)
-
+    
     generate_btn.click(
         fn=generate_image,
         inputs=[
